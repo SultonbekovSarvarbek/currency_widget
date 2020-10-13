@@ -6,32 +6,34 @@
           <div class="tab__header">
             <h2>Курс EUR сегодня</h2>
 
-            <!-- <div class="tab__header-tabs"> -->
             <div class="tabs__list">
-              <VueSlickCarousel v-bind="settings" v-if="getTabs.rates">
-                <div v-for="(item, index) in getTabs.rates" :key="item.id">
-                  <button
-                    class="btn"
+              <div class="swiper-buttontab-prev">
+                <span class="arrowtab lefttab"></span>
+              </div>
+              <swiper ref="mySwiperTab" :options="swiperOptionsTab">
+                <swiper-slide
+                  v-for="(item, index) in getNewTabs"
+                  :key="item.id"
+                >
+                  <div
+                    class="btnLink"
                     @click="selectTab(item.currency, index + 1)"
+                    :class="{ activetab: currentTab == index + 1 }"
                   >
-                    {{ item.currency }}
-                  </button>
-                </div>
-                <template #prevArrow="arrowOption">
-                  <div class="custom-arrow">
-                    {{ arrowOption.currentSlide }}/{{ arrowOption.slideCount }}
+                    <div
+                      type="button"
+                      class="btn"
+                      :class="{ activetabtext: currentTab == index + 1 }"
+                    >
+                      {{ item.currency }}
+                    </div>
                   </div>
-                </template>
-                /*...*/
-                <template #customPaging="page">
-                  <div class="custom-dot">
-                    {{ page }}
-                  </div>
-                </template>
-              </VueSlickCarousel>
+                </swiper-slide>
+              </swiper>
+              <div class="swiper-buttontab-next">
+                <span class="arrowtab arrowtabnext"></span>
+              </div>
             </div>
-
-            <!-- </div> -->
           </div>
           <div class="tab__content">
             <div class="tab__content-input">
@@ -42,26 +44,51 @@
               />
               <p>{{ getTabs.base }}</p>
             </div>
+          </div>
+        </div>
 
-            <VueSlickCarousel
-              v-bind="settingscard"
-              v-if="filterValue.length !== 0"
+        <div>
+          <swiper ref="mySwiper" :options="swiperOptions">
+            <swiper-slide
+              v-for="index in Math.round(filterValue.length / 4)"
+              :key="index"
             >
-              <div
-                class="card__item"
-                v-for="value in filterValue"
-                :key="value.id"
-              >
-                {{
-                  Math.round(value.value)
-                    .toLocaleString("zh-ZH")
-                    .split(",")
-                    .join(" ")
-                }}
-                -
-                {{ value.currency }}
+              <div class="sliders__wrapper">
+                <div v-for="n in 4" :key="n.id">
+                  <div
+                    class="card__item"
+                    v-if="filterValue[(index - 1) * 4 + n]"
+                  >
+                    <p>
+                      {{ currencyValue }} <span>{{ getTabs.base }} = </span>
+                    </p>
+                    <span>
+                      {{
+                        Math.round(filterValue[(index - 1) * 4 + n].value)
+                          .toLocaleString("zh-ZH")
+                          .split(",")
+                          .join(" ")
+                      }}
+
+                      <small>{{
+                        filterValue[(index - 1) * 4 + n].currency
+                      }}</small>
+                    </span>
+                  </div>
+                </div>
               </div>
-            </VueSlickCarousel>
+            </swiper-slide>
+          </swiper>
+          <div class="swiper__navg">
+            <div class="swiper-button-prev">
+              <span class="arrow left"></span>
+              Назад
+            </div>
+
+            <div class="swiper-button-next">
+              Далее
+              <span class="arrow"></span>
+            </div>
           </div>
         </div>
       </div>
@@ -70,40 +97,82 @@
 </template>
 
 <script>
-// VueSlick
-import VueSlickCarousel from "vue-slick-carousel";
-import "vue-slick-carousel/dist/vue-slick-carousel.css";
-// optional style for arrows & dots
-import "vue-slick-carousel/dist/vue-slick-carousel-theme.css";
 export default {
   data() {
     return {
+      getNewTabs: [
+        { currency: "EUR" },
+        { currency: "CAD" },
+        { currency: "HKD" },
+        { currency: "ISK" },
+        { currency: "PHP" },
+        { currency: "DKK" },
+        { currency: "HUF" },
+        { currency: "CZK" },
+        { currency: "AUD" },
+        { currency: "RON" },
+        { currency: "SEK" },
+        { currency: "IDR" },
+        { currency: "INR" },
+        { currency: "BRL" },
+        { currency: "RUB" },
+        { currency: "HRK" },
+        { currency: "JPY" },
+        { currency: "THB" },
+        { currency: "CHF" },
+        { currency: "SGD" },
+        { currency: "PLN" },
+        { currency: "BGN" },
+        { currency: "TRY" },
+        { currency: "CNY" },
+        { currency: "NOK" },
+        { currency: "NZD" },
+        { currency: "ZAR" },
+        { currency: "USD" },
+        { currency: "MXN" },
+        { currency: "ILS" },
+        { currency: "GBP" },
+        { currency: "KRW" },
+        { currency: "MYR" },
+      ],
+      swiperOptions: {
+        navigation: {
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        },
+      },
+      swiperOptionsTab: {
+        navigation: {
+          nextEl: ".swiper-buttontab-next",
+          prevEl: ".swiper-buttontab-prev",
+        },
+        slidesPerView: 11,
+        freeMode: true,
+        breakpoints: {
+          320: {
+            slidesPerView: 3,
+          },
+          768: {
+            slidesPerView: 8,
+          },
+          880: {
+            slidesPerView: 12,
+          },
+        },
+      },
       currentTab: 1,
       baseCurrency: "",
-      settings: {
-        infinite: true,
-        speed: 500,
-
-        variableWidth: true,
-        slidesToScroll: 1,
-      },
-      settingscard: {
-        infinite: false,
-        speed: 500,
-        slidesToShow: 4,
-        slidesToScroll: 4,
-        leftMode: true,
-        leftPadding: "40px",
-      },
       filterValue: [],
       currencyValue: "",
     };
   },
-  components: {
-    VueSlickCarousel,
+  computed: {
+    getTabs() {
+      return this.$store.getters.getTabs;
+    },
   },
-  async mounted() {
-    await this.$store.dispatch("tabs");
+  mounted() {
+    this.$store.dispatch("tabs");
   },
   watch: {
     currencyValue: function (val) {
@@ -111,16 +180,11 @@ export default {
         ...this.getTabs.rates.map((x) => {
           return {
             currency: x.currency,
-
             value: x.value * val,
           };
         }),
       ];
-    },
-  },
-  computed: {
-    getTabs() {
-      return this.$store.getters.getTabs;
+      this.$refs.mySwiper.$swiper.slideTo(0);
     },
   },
 
@@ -128,33 +192,234 @@ export default {
     selectTab(currency, selectedTab) {
       this.currentTab = selectedTab;
       this.$store.dispatch("getBase", currency);
+      this.$refs.mySwiper.$swiper.slideTo(0);
       this.currencyValue = "";
-    },
-    showNext() {
-      this.$refs.carousel.next();
     },
   },
 };
 </script>
 
 <style scoped>
-.card__item {
-  background-color: rgb(216, 191, 191) !important;
+.arrowtabnext {
+  margin-right: 0;
+  margin-left: 6px;
+}
+.btnLink {
+  cursor: pointer;
+  text-align: center;
+  padding: 15px 5px 15px 5px;
+}
+.activetab {
+  border-top-right-radius: 7px;
+  border-top-left-radius: 7px;
+  background-color: #fff;
+}
+.activetabtext {
+  color: #2b2d33 !important;
+}
+.swiper__navg {
+  display: flex;
+  justify-content: center;
+  color: #333 !important;
+}
+.arrow {
+  padding-right: 15px;
+}
+.swiper__navg div {
+  font-size: 12px;
+  text-transform: uppercase;
+  border-radius: 7px;
+  position: relative;
+}
+.swiper__navg div span {
+  position: relative;
+}
+.tabs__list .swiper-buttontab-prev,
+.tabs__list .swiper-buttontab-next {
+  color: #ccae68;
+  position: relative;
+  margin-right: 15px;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+.tabs__list .swiper-buttontab-next span::before,
+.tabs__list .swiper-buttontab-next span::after {
+  border-right: 2px solid;
+  content: "";
+  display: block;
+  height: 8px;
+  margin-top: -6px;
+  position: absolute;
+  -moz-transform: rotate(135deg);
+  -o-transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+  transform: rotate(135deg);
+  right: 0;
+  top: 50%;
+  width: 0;
+}
+.tabs__list .swiper-buttontab-prev span::before,
+.tabs__list .swiper-buttontab-prev span::after {
+  border-right: 2px solid;
+  content: "";
+  display: block;
+  height: 8px;
+  margin-top: -6px;
+  position: absolute;
+  -moz-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+  right: 0;
+  top: 50%;
+  width: 0;
+}
+.tabs__list .swiper-buttontab-next span::after {
+  margin-top: -1px;
+  -moz-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.tabs__list .swiper-buttontab-prev span::after {
+  margin-top: -1px;
+  -moz-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+  transform: rotate(-45deg);
+}
+.swiper__navg .swiper-button-prev {
+  background-color: #efefef;
+  margin-right: 20px;
+  padding: 15px;
+}
+.lefttab {
+  -webkit-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.left {
+  -webkit-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+.swiper__navg .swiper-button-next span::before,
+.swiper__navg .swiper-button-next span::after {
+  border-right: 2px solid;
+  content: "";
+  display: block;
+  height: 8px;
+  margin-top: -6px;
+  position: absolute;
+  -moz-transform: rotate(135deg);
+  -o-transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+  transform: rotate(135deg);
+  right: 0;
+  top: 50%;
+  width: 0;
+}
+.swiper__navg .swiper-button-prev span::before,
+.swiper__navg .swiper-button-prev span::after {
+  border-right: 2px solid;
+  content: "";
+  display: block;
+  height: 8px;
+  margin-top: -6px;
+  position: absolute;
+  -moz-transform: rotate(135deg);
+  -o-transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+  transform: rotate(135deg);
+  right: 0;
+  top: 50%;
+  width: 0;
+}
+.swiper__navg .swiper-button-next span::after {
+  margin-top: -1px;
+  -moz-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.swiper__navg .swiper-button-prev span::after {
+  margin-top: -1px;
+  -moz-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.swiper__navg .swiper-button-next {
+  background-color: #fff;
+  padding: 15px;
+}
+.swiper-button-next,
+.swiper-button-prev {
+  position: unset;
+  box-shadow: 0px 3px 6px -1px rgb(230, 230, 230);
+  color: #333;
+}
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  display: none;
+}
+.swiper-button-next {
+  right: unset;
+  left: unset;
+  width: unset;
+  margin-top: unset;
+}
+.swiper-button-prev {
+  left: unset;
+  width: unset;
+  margin-top: unset;
 }
 .card__item {
-  background-color: thistle;
+  background-color: #fff;
+  text-align: left;
+  /* display: flex; */
+  color: #2b2d33;
+  min-height: 127px;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 3px 6px -1px rgb(230, 230, 230);
+}
+.card__item span {
+  font-size: 40px;
+}
+.card__item > p,
+.card__item span small {
+  font-size: 20px;
+}
+.card__item > p > span {
+  color: #b9b9b9;
+  font-size: 20px;
+}
+.sliders__wrapper {
+  display: grid;
+  padding: 20px;
+
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-gap: 10px;
+}
+@media (max-width: 485px) {
+  .sliders__wrapper {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
 }
 .tab__content-input {
   justify-content: flex-end;
   display: flex;
   align-items: center;
+  padding-top: 20px;
 }
 .tab__content-input p {
   color: #b9b9b9;
   font-weight: bold;
   margin-left: 5px;
 }
-
 input {
   margin: 0;
   border: 0;
@@ -164,7 +429,7 @@ input {
   white-space: normal;
   background: none;
   font-size: 16px;
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid #b9b9b9;
   text-align: right;
 }
 input:focus {
@@ -176,17 +441,16 @@ input:focus {
 :-moz-placeholder {
   text-align: right;
 }
+.tabs__list {
+  display: flex;
+  align-items: center;
+}
 
-/* .tabs__list {
-  margin: 30px 0;
-} */
 .scroll_right,
 .scroll_left,
 .btn {
   display: inline-block;
   border: none;
-  /* padding: 10px; */
-  margin: 0;
   text-decoration: none;
   background: transparent;
   color: #ccae68;
@@ -198,10 +462,6 @@ input:focus {
   -webkit-appearance: none;
   -moz-appearance: none;
 }
-.btn:first-child {
-  padding-left: 0;
-}
-
 .btn:hover,
 .btn:focus {
   outline: none;
@@ -215,42 +475,18 @@ input:focus {
 .btn.activeTab {
   background: #002046;
 }
-.tab {
-  background-color: #f4f4f4;
-  padding: 30px;
-}
 .tabs__content {
   border: 1px solid #333;
   margin-top: 20px;
   padding: 20px;
 }
-.tab__header-tabs {
-  /* display: flex; */
-  /* margin: 0 20px; */
-  /* overflow-y: scroll; */
+.tab__header h2 {
+  margin-bottom: 20px;
 }
 .tab__header {
   color: #000;
   text-align: left;
   background-color: #ffe782;
-  padding: 20px;
-}
-</style>
-<style>
-.slick-prev {
-  left: 0px;
-  background-color: #ffe782;
-  z-index: 9;
-}
-.slick-prev:hover {
-  background-color: #ffe782;
-}
-.slick-next {
-  right: 0px;
-  z-index: 9;
-  background-color: #ffe782;
-}
-.slick-next:hover {
-  background-color: #ffe782;
+  padding: 20px 20px 0 20px;
 }
 </style>

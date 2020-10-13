@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <h1>Currency Widget</h1>
     <!-- <img alt="Vue logo" src="./assets/logo.png" /> -->
     <!-- <HelloWorld msg="Welcome to Your Vue.js App" /> -->
     <tab />
@@ -28,7 +27,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 body {
   margin: 0;
@@ -37,7 +35,7 @@ body {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 10px 0 10px;
+  padding: 5px;
 }
 *,
 *:before,
